@@ -9,6 +9,34 @@ For this to work you need another route which is used to create the JWT
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const passportJWT = require('passport-jwt');
+const jwtStrategy = passportJWT.Strategy;
+const extractJWT = passportJWT.ExtractJwt;
+const SUPERSECRETKEY = 'secretkey';
+
+const jwtOptions = {
+    jwtFromRequest: extractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: SUPERSECRETKEY
+};
+passport.use(new jwtStrategy(jwtOptions, function(jwt_Payload, done) { 
+    //here i can do whatever i want with the payload
+    //the token is valid
+    console.log('this is the payload: ', jwt_Payload);
+    console.log('token is valid');
+
+    // when you are ready, call the done function with the payload as argument
+    //for example,find the user information from the database
+    //and pass it to the route handler
+     const userInformationExample = {
+        email: 'example@example',
+        username: 'example',
+        address: 'example street 123',
+        id : 123
+
+     };
+    done(null, userInformationExample);
+}));
 
 
 function httpBasicMw(req, res, next){
@@ -61,28 +89,40 @@ function httpBasicMw(req, res, next){
    next();
 };
 
-function validateJWT(req,res,next){}
+function validateJWT(req,res,next){
+const authHeader = req.get('Authorization');
+console.log(authHeader);
+
+}
 
 
 app.get('/login',httpBasicMw, (req, res) => { 
     //create a jwt token
-      const jsonwebtoken = jwt.sign({},"mysecret");
-      username: 'testuser';
+      const jsonwebtoken = jwt.sign({
+        username: 'testuser',
+        someotherdata: 'someotherdata',
+        userId: 123,
+      }, SUPERSECRETKEY);
 
     //send the jwt token in the response
     res.status(200).json({
         token: jsonwebtoken
     });
 });
-app.get('/jwtProtectedRoute', validateJWT, (req, res) => { 
+app.get('/jwtProtectedRoute',
+ passport.authenticate('jwt', { session: false }),
+  (req, res) => { 
     // at the moment we are sure that the jwt is valid because the validateJWT middleware has been executed
      
 
     //now we can send the protected resource
+    console.log('hello from jwtProtectedRoute');
     
+    //the user information is available in the req.user 
+    console.log('user information:', req.user);
     
     //response with tetxt "completed"
-    res.status(200).send('hello from anotherhttpbasic');
+    res.status(200).send('hello from jwtProtectedRoute');
 });
 app.get('/public', (req, res) => { 
     
