@@ -1,3 +1,23 @@
+/*Create a new express based server, 
+create one route (GET /httpbasic) into it and
+ use HTTP Basic security scheme in your route.
+  Implement the HTTP Basic on your own without 
+  ready libraries except for base64 decoding (see Encoding and Decoding 
+    Base64 Strings in Node.js (stackabuse.com) for decoding base64 strings).
+
+Validate that your implementation works correctly. Use for example this service to create username&password 
+in base64 format: Base64 Encode and Decode - Online
+
+Send requests with Postman, Thunderclient etc. to your server.
+
+- When the username does not match
+
+- When the password is not correct
+
+- When both of them are correct, return the content of the route
+
+
+*/
 const express = require('express');
 const app = express();
 
